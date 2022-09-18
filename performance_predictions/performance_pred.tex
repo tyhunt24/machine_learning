@@ -1,0 +1,678 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Performance Predictions on Tesla Stock},
+  pdfauthor={Jeffrey Hunt, Anmoldeep Sandhu, Kayla Zantello},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Performance Predictions on Tesla Stock}
+\author{Jeffrey Hunt, Anmoldeep Sandhu, Kayla Zantello}
+\date{2022-09-13}
+
+\begin{document}
+\maketitle
+
+\hypertarget{problem-statement}{%
+\subsection{Problem Statement}\label{problem-statement}}
+
+The main task of this assignment is to download the stock data of
+company from Yahoo website, and using that data, we need to predict the
+company future performance using the linear model in R.
+
+\hypertarget{section}{%
+\subsubsection{}\label{section}}
+
+Multiple Linear regression Equation:
+\[ y = \beta_0 + \beta_1 x_1+ \beta_2 x_2 + ...+ \beta_p x_p  \]
+
+\hypertarget{data-setup-and-exploration}{%
+\subsubsection{Data setup and
+exploration}\label{data-setup-and-exploration}}
+
+We chooses a Tesla Stock data. We are going to predict the future of
+Tesla Stock. data source:
+\url{https://finance.yahoo.com/quote/TSLA/history?p=TSLA}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tesla }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"TSLA.CSV"}\NormalTok{)}
+\NormalTok{tesla.df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(tesla)}
+\FunctionTok{head}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         Date     Open     High      Low    Close Adj.Close   Volume
+## 1 2021-09-17 252.3833 253.6800 250.0000 253.1633  253.1633 84612600
+## 2 2021-09-20 244.8533 247.3333 239.5400 243.3900  243.3900 74273100
+## 3 2021-09-21 244.9300 248.2467 243.4800 246.4600  246.4600 48992100
+## 4 2021-09-22 247.8433 251.2233 246.3733 250.6467  250.6467 45378900
+## 5 2021-09-23 251.6667 252.7333 249.3067 251.2133  251.2133 35842500
+## 6 2021-09-24 248.6300 258.2667 248.1867 258.1300  258.1300 64119000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           Date   Open   High    Low  Close Adj.Close   Volume
+## 247 2022-09-09 291.67 299.85 291.25 299.68    299.68 54338100
+## 248 2022-09-12 300.72 305.49 300.40 304.42    304.42 48674600
+## 249 2022-09-13 292.90 297.40 290.40 292.13    292.13 68229600
+## 250 2022-09-14 292.24 306.00 291.64 302.61    302.61 72628700
+## 251 2022-09-15 301.83 309.12 300.72 303.75    303.75 64795500
+## 252 2022-09-16 299.61 303.71 295.60 303.35    303.35 86949500
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# The data structure}
+\FunctionTok{str}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    252 obs. of  7 variables:
+##  $ Date     : chr  "2021-09-17" "2021-09-20" "2021-09-21" "2021-09-22" ...
+##  $ Open     : num  252 245 245 248 252 ...
+##  $ High     : num  254 247 248 251 253 ...
+##  $ Low      : num  250 240 243 246 249 ...
+##  $ Close    : num  253 243 246 251 251 ...
+##  $ Adj.Close: num  253 243 246 251 251 ...
+##  $ Volume   : int  84612600 74273100 48992100 45378900 35842500 64119000 84212100 76144200 62828700 53868000 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{names}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Date"      "Open"      "High"      "Low"       "Close"     "Adj.Close"
+## [7] "Volume"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{class}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "data.frame"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(tesla.df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      Date                Open            High            Low       
+##  Length:252         Min.   :207.9   Min.   :218.0   Min.   :206.9  
+##  Class :character   1st Qu.:261.8   1st Qu.:267.3   1st Qu.:256.8  
+##  Mode  :character   Median :296.8   Median :303.1   Median :287.7  
+##                     Mean   :298.9   Mean   :306.2   Mean   :291.0  
+##                     3rd Qu.:335.7   3rd Qu.:345.0   3rd Qu.:327.9  
+##                     Max.   :411.5   Max.   :414.5   Max.   :405.7  
+##      Close         Adj.Close         Volume         
+##  Min.   :209.4   Min.   :209.4   Min.   : 35042700  
+##  1st Qu.:260.8   1st Qu.:260.8   1st Qu.: 63489300  
+##  Median :295.2   Median :295.2   Median : 77902650  
+##  Mean   :298.6   Mean   :298.6   Mean   : 80602369  
+##  3rd Qu.:336.5   3rd Qu.:336.5   3rd Qu.: 93513375  
+##  Max.   :410.0   Max.   :410.0   Max.   :188556300
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# checks for missing values}
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(tesla.df))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Calculate the correlation between all variables}
+\FunctionTok{cor}\NormalTok{(tesla.df[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{7}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                  Open       High         Low       Close   Adj.Close
+## Open       1.00000000 0.99157300  0.98684998  0.97297468  0.97297468
+## High       0.99157300 1.00000000  0.98842304  0.98715841  0.98715841
+## Low        0.98684998 0.98842304  1.00000000  0.99047846  0.99047846
+## Close      0.97297468 0.98715841  0.99047846  1.00000000  1.00000000
+## Adj.Close  0.97297468 0.98715841  0.99047846  1.00000000  1.00000000
+## Volume    -0.02922186 0.02680747 -0.08639605 -0.02992719 -0.02992719
+##                Volume
+## Open      -0.02922186
+## High       0.02680747
+## Low       -0.08639605
+## Close     -0.02992719
+## Adj.Close -0.02992719
+## Volume     1.00000000
+\end{verbatim}
+
+\hypertarget{plot-the-data}{%
+\subsection{Plot the data}\label{plot-the-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datex }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{:}\DecValTok{252} 
+\NormalTok{closey }\OtherTok{\textless{}{-}}\NormalTok{ tesla.df[, }\DecValTok{2}\NormalTok{] }\CommentTok{\#Getting just the closing data since it is our dependent Variable}
+
+\FunctionTok{plot}\NormalTok{(datex, closey)}
+\FunctionTok{abline}\NormalTok{(}\FunctionTok{lm}\NormalTok{(closey }\SpecialCharTok{\textasciitilde{}}\NormalTok{ datex))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/plot_data-1.pdf}
+
+\hypertarget{prepare-training-and-testing-sets}{%
+\subsection{Prepare training and testing
+sets}\label{prepare-training-and-testing-sets}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(caTools)}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}\CommentTok{\# Reporduce the sample}
+
+\NormalTok{sample }\OtherTok{\textless{}{-}} \FunctionTok{sample.split}\NormalTok{(tesla.df}\SpecialCharTok{$}\NormalTok{Close, }\AttributeTok{SplitRatio =} \FloatTok{0.8}\NormalTok{)}
+
+\NormalTok{tesla.df.train }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(tesla.df, }\AttributeTok{sample=}\NormalTok{ True)}
+\NormalTok{tesla.df.test }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(tesla.df, }\AttributeTok{sample =}\NormalTok{ False)}
+
+\FunctionTok{head}\NormalTok{(tesla.df.train)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         Date     Open     High      Low    Close Adj.Close   Volume
+## 1 2021-09-17 252.3833 253.6800 250.0000 253.1633  253.1633 84612600
+## 2 2021-09-20 244.8533 247.3333 239.5400 243.3900  243.3900 74273100
+## 3 2021-09-21 244.9300 248.2467 243.4800 246.4600  246.4600 48992100
+## 4 2021-09-22 247.8433 251.2233 246.3733 250.6467  250.6467 45378900
+## 5 2021-09-23 251.6667 252.7333 249.3067 251.2133  251.2133 35842500
+## 6 2021-09-24 248.6300 258.2667 248.1867 258.1300  258.1300 64119000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(tesla.df.test)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           Date   Open   High    Low  Close Adj.Close   Volume
+## 247 2022-09-09 291.67 299.85 291.25 299.68    299.68 54338100
+## 248 2022-09-12 300.72 305.49 300.40 304.42    304.42 48674600
+## 249 2022-09-13 292.90 297.40 290.40 292.13    292.13 68229600
+## 250 2022-09-14 292.24 306.00 291.64 302.61    302.61 72628700
+## 251 2022-09-15 301.83 309.12 300.72 303.75    303.75 64795500
+## 252 2022-09-16 299.61 303.71 295.60 303.35    303.35 86949500
+\end{verbatim}
+
+\hypertarget{buld-our-multiple-linear-regression-model}{%
+\subsection{Buld our multiple linear regression
+model}\label{buld-our-multiple-linear-regression-model}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{closeModel }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Close }\SpecialCharTok{\textasciitilde{}}\NormalTok{., }\AttributeTok{data =}\NormalTok{ tesla.df.train[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{7}\NormalTok{])}
+\FunctionTok{summary}\NormalTok{(closeModel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in summary.lm(closeModel): essentially perfect fit: summary may be
+## unreliable
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = Close ~ ., data = tesla.df.train[2:7])
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -4.423e-14 -7.100e-17  1.900e-16  3.960e-16  2.857e-15 
+## 
+## Coefficients:
+##               Estimate Std. Error    t value Pr(>|t|)    
+## (Intercept)  1.718e-14  1.505e-15  1.141e+01   <2e-16 ***
+## Open         4.819e-16  4.326e-17  1.114e+01   <2e-16 ***
+## High        -5.599e-16  5.881e-17 -9.521e+00   <2e-16 ***
+## Low         -5.554e-16  5.316e-17 -1.045e+01   <2e-16 ***
+## Adj.Close    1.000e+00  4.099e-17  2.440e+16   <2e-16 ***
+## Volume       1.176e-23  1.103e-23  1.066e+00    0.287    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.872e-15 on 246 degrees of freedom
+## Multiple R-squared:      1,  Adjusted R-squared:      1 
+## F-statistic: 1.316e+34 on 5 and 246 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+\hypertarget{improve-our-model}{%
+\subsection{Improve our Model}\label{improve-our-model}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#we improve our model only choosing variables with a p value \textless{} 2.2e{-}16}
+\CommentTok{\#also we won\textquotesingle{}t include the ADJ Close Model because it the same as the Close Column}
+
+\NormalTok{closeModel.significantVars }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Close }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Open }\SpecialCharTok{+}\NormalTok{ High }\SpecialCharTok{+}\NormalTok{ Low, }\AttributeTok{data =}\NormalTok{ tesla.df.train)}
+
+\FunctionTok{summary}\NormalTok{(closeModel.significantVars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = Close ~ Open + High + Low, data = tesla.df.train)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -14.9924  -3.1628   0.1633   2.7007  15.3910 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  1.02732    1.83078   0.561    0.575    
+## Open        -0.68213    0.04917 -13.872   <2e-16 ***
+## High         0.81614    0.05157  15.824   <2e-16 ***
+## Low          0.86443    0.04348  19.881   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 4.45 on 248 degrees of freedom
+## Multiple R-squared:  0.991,  Adjusted R-squared:  0.9908 
+## F-statistic:  9053 on 3 and 248 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+\hypertarget{regression-output-intepretation}{%
+\subsection{Regression Output
+Intepretation}\label{regression-output-intepretation}}
+
+For the example, every time we *\textbf{Open} we can expect the
+\textbf{Close} to decrease by 0.68 for every dollar amount or for the
+\textbf{Higher} the sell the \textbf{close} increases by 0.81.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Variables used in the model}
+\FunctionTok{names}\NormalTok{(closeModel.significantVars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "coefficients"  "residuals"     "effects"       "rank"         
+##  [5] "fitted.values" "assign"        "qr"            "df.residual"  
+##  [9] "xlevels"       "call"          "terms"         "model"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Get the number of fitted variables in the model}
+\FunctionTok{length}\NormalTok{(closeModel.significantVars}\SpecialCharTok{$}\NormalTok{fitted.values)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 252
+\end{verbatim}
+
+\hypertarget{calculate-residuals}{%
+\subsection{Calculate residuals}\label{calculate-residuals}}
+
+Calculating the difference between the predicted and observed values.
+The residuals values are both positive and negative. If we have a
+positive residual it means are predicted value was to low, and our
+negative means are residual were too High.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.train }\OtherTok{\textless{}{-}}\NormalTok{ closeModel.significantVars}\SpecialCharTok{$}\NormalTok{fitted.values}
+\FunctionTok{head}\NormalTok{(predicted.train)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2        3        4        5        6 
+## 252.0145 242.9292 247.0282 249.9714 251.1314 256.7506
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.train.df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(predicted.train)}
+
+\CommentTok{\# Calculate residuals}
+
+\NormalTok{predicted.train.df.residuals }\OtherTok{\textless{}{-}}\NormalTok{ closeModel.significantVars}\SpecialCharTok{$}\NormalTok{residuals}
+\FunctionTok{head}\NormalTok{(predicted.train.df.residuals)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           1           2           3           4           5           6 
+##  1.14881483  0.46076445 -0.56822515  0.67526320  0.08189894  1.37939856
+\end{verbatim}
+
+\hypertarget{make-predictions-using-the-test-test}{%
+\subsection{Make Predictions using the test
+test}\label{make-predictions-using-the-test-test}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.test }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(closeModel.significantVars, }\AttributeTok{newdata =}\NormalTok{ tesla.df.test)}
+\FunctionTok{head}\NormalTok{(predicted.test, }\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2        3        4        5        6        7        8 
+## 252.0145 242.9292 247.0282 249.9714 251.1314 256.7506 264.2742 259.2568 
+##        9       10 
+## 261.6539 261.4369
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.test.df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(predicted.test)}
+
+\CommentTok{\# The actual values vs the predicted values}
+\FunctionTok{plot}\NormalTok{(tesla.df.test}\SpecialCharTok{$}\NormalTok{Close, }\AttributeTok{col=}\StringTok{"red"}\NormalTok{, }\AttributeTok{type=}\StringTok{"l"}\NormalTok{, }\AttributeTok{lty=}\FloatTok{1.8}\NormalTok{, }\AttributeTok{main =} \StringTok{"Actual vs Predicted Values"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(predicted.test.df, }\AttributeTok{col=}\StringTok{"blue"}\NormalTok{, }\AttributeTok{type=}\StringTok{"l"}\NormalTok{, }\AttributeTok{lty=}\FloatTok{1.4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/predictions-1.pdf}
+
+\hypertarget{model-verification}{%
+\subsection{Model Verification}\label{model-verification}}
+
+\hypertarget{comfirm-linearity}{%
+\subsubsection{Comfirm Linearity}\label{comfirm-linearity}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(closeModel.significantVars, }\AttributeTok{which =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/verify_linearity-1.pdf}
+The residuals ``bounce randomly'' around the 0 line suggesting that the
+assumption that the realtionship is linear.
+
+\hypertarget{confirm-normality}{%
+\subsubsection{Confirm Normality}\label{confirm-normality}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(closeModel.significantVars, }\AttributeTok{which =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/verify_normality-1.pdf}
+The straight line indicates normal distribution.
+
+\hypertarget{check-homoscedasticity}{%
+\subsubsection{Check Homoscedasticity}\label{check-homoscedasticity}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(closeModel.significantVars, }\AttributeTok{which =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/verify_homoscedasticity-1.pdf}
+Besides the 3 values (161, 95, and 34) the residuals are spread out
+about the red line indicating homeoscedesticity. We need to further
+verification to make sure that there is homoscedasticity.
+
+\hypertarget{verify-outliers}{%
+\subsubsection{Verify Outliers}\label{verify-outliers}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(closeModel.significantVars, }\AttributeTok{which =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{performance_pred_files/figure-latex/verify_outliers-1.pdf}
+There are 3 outliers (161, 38, 34) but they do not cross the Cook's
+distance line indicating they do not significantly inmpact the model.
+
+\hypertarget{verify-independence}{%
+\subsubsection{Verify Independence}\label{verify-independence}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Verify residuals are independent}
+
+\FunctionTok{library}\NormalTok{(car)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: carData
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#test using the durbinwatson test}
+\FunctionTok{durbinWatsonTest}\NormalTok{(closeModel.significantVars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  lag Autocorrelation D-W Statistic p-value
+##    1      -0.1113856      2.220284   0.082
+##  Alternative hypothesis: rho != 0
+\end{verbatim}
+
+AutoCorrelation is a mathematical representation of the degree similar
+between a given time series and a lagged version of itself over time.
+From the given p-value it appears that there is an autocoorelation. So
+we must reject the null hypothesis meaning the residuals are
+autocoorelated. This needs to be improved one way to improve it is to go
+back over the linear model and attempt to improve the fit.
+
+\hypertarget{check-homoscedasticity-1}{%
+\subsubsection{Check Homoscedasticity}\label{check-homoscedasticity-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ncvTest}\NormalTok{(closeModel.significantVars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Non-constant Variance Score Test 
+## Variance formula: ~ fitted.values 
+## Chisquare = 10.17265, Df = 1, p = 0.0014254
+\end{verbatim}
+
+The NCV test returns a value of 0.0013551 which is sightly greater than
+0.001, so we can reject the null hypothesis and there is reason to
+believe that homoscedasticity is active in the model.
+
+\hypertarget{verify-colinearity}{%
+\subsubsection{Verify Colinearity}\label{verify-colinearity}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{vif}\NormalTok{(closeModel.significantVars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Open     High      Low 
+## 67.56769 76.68797 49.26121
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{vif}\NormalTok{(closeModel.significantVars)) }\SpecialCharTok{\textgreater{}} \DecValTok{5}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Open High  Low 
+## TRUE TRUE TRUE
+\end{verbatim}
+
+\hypertarget{final-close-cost-prediction-results}{%
+\subsubsection{Final Close Cost prediction
+results}\label{final-close-cost-prediction-results}}
+
+Since all tests return true we can we can comfirm that there is
+colinearity. This means that the variables are highly coorelated to each
+other.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.test }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(closeModel.significantVars, }\AttributeTok{newdata =}\NormalTok{ tesla.df.test)}
+\NormalTok{predicted.test.df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(predicted.test)}
+\FunctionTok{head}\NormalTok{(predicted.test.df[}\FunctionTok{order}\NormalTok{(predicted.test.df}\SpecialCharTok{$}\NormalTok{predicted.test),], }\DecValTok{20}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 209.1393 213.2598 217.3803 219.3414 219.8755 220.0737 220.7804 220.9242
+##  [9] 224.3427 224.6055 226.0531 226.0905 231.2426 231.4284 231.6999 232.5651
+## [17] 233.1001 233.8139 234.4949 236.1789
+\end{verbatim}
+
+\hypertarget{our-equation}{%
+\subsubsection{Our Equation}\label{our-equation}}
+
+\[ y = 1.21 - 0.68 x_1+ 0.81 x_2 + 0.86 x_3 \]
+
+\hypertarget{christian-worldview}{%
+\subsection{Christian Worldview:}\label{christian-worldview}}
+
+From a christian worldview some other factors that would go to an
+investment decision process is not only looking at the finances of the
+company but also the ethics of the company. We should look at this more
+from a qualitative assessment separate from our statistical model
+because we want would want to know if this company is trustworthy in
+investing.
+
+\hypertarget{references}{%
+\subsection{References:}\label{references}}
+
+\url{https://finance.yahoo.com/quote/TSLA/history?p=TSLA}
+\url{https://padlet.com/isac_artzi/uamseybcuinw6t8s}
+\url{https://statsandr.com/blog/multiple-linear-regression-made-simple/\#another-interpretation-of-the-intercept}
+
+\end{document}

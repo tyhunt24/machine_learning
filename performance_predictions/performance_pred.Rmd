@@ -1,30 +1,240 @@
 ---
-title: "Performance Predictions"
-author: "Jeffrey Hunt"
-date: "2022-09-12"
-output: html_document
+title: "Performance Predictions on Tesla Stock"
+author: "Jeffrey Hunt, Anmoldeep Sandhu, Kayla Zantello"
+date: "2022-09-13"
+output:
+  html_document: default
+  pdf_document: default
+Link to loom Video: https://www.loom.com/share/03ac8e72880e49efb424aa62a43b68fe
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Problem Statement
+The main task of this assignment is to download the stock data of company from Yahoo website, and using that data, we need to predict the company future performance using the linear model in R.
+
+###
+Multiple Linear regression Equation:
+$$ y = \beta_0 + \beta_1 x_1+ \beta_2 x_2 + ...+ \beta_p x_p  $$
+
+
+### Data setup and exploration
+We chooses a Tesla Stock data. We are going to predict the future of Tesla Stock.
+data source: https://finance.yahoo.com/quote/TSLA/history?p=TSLA
+
+```{r data_setup}
+tesla <- read.csv("TSLA.CSV")
+tesla.df <- data.frame(tesla)
+head(tesla.df)
+tail(tesla.df)
+
+# The data structure
+str(tesla.df)
+names(tesla.df)
+class(tesla.df)
+summary(tesla.df)
+
+# checks for missing values
+sum(is.na(tesla.df))
+
+# Calculate the correlation between all variables
+cor(tesla.df[2:7])
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Plot the data
+```{r plot_data}
+datex <- 1:252 
+closey <- tesla.df[, 2] #Getting just the closing data since it is our dependent Variable
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+plot(datex, closey)
+abline(lm(closey ~ datex))
 ```
 
-## Including Plots
+## Prepare training and testing sets
+```{r split_data}
+library(caTools)
+set.seed(123)# Reporduce the sample
 
-You can also embed plots, for example:
+sample <- sample.split(tesla.df$Close, SplitRatio = 0.8)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+tesla.df.train <- subset(tesla.df, sample= True)
+tesla.df.test <- subset(tesla.df, sample = False)
+
+head(tesla.df.train)
+tail(tesla.df.test)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Buld our multiple linear regression model
+
+```{r model}
+
+closeModel <- lm(Close ~., data = tesla.df.train[2:7])
+summary(closeModel)
+
+```
+
+## Improve our Model
+
+```{r improved_model}
+#we improve our model only choosing variables with a p value < 2.2e-16
+#also we won't include the ADJ Close Model because it the same as the Close Column
+
+closeModel.significantVars <- lm(Close ~ Open + High + Low, data = tesla.df.train)
+
+summary(closeModel.significantVars)
+```
+
+## Regression Output Intepretation
+
+For the example, every time we **Open** we can expect the **Close** to decrease by 0.68 for every dollar amount or for the **Higher** the sell the **close** increases by 0.81.
+
+```{r interpretation}
+
+#Variables used in the model
+names(closeModel.significantVars)
+
+#Get the number of fitted variables in the model
+length(closeModel.significantVars$fitted.values)
+```
+
+
+## Calculate residuals
+
+Calculating the difference between the predicted and observed values. The residuals values are both positive and negative. If we have a positive residual it means are predicted value was to low, and our negative means are residual were too High.
+
+```{r residuals}
+
+predicted.train <- closeModel.significantVars$fitted.values
+head(predicted.train)
+
+predicted.train.df <- data.frame(predicted.train)
+
+# Calculate residuals
+
+predicted.train.df.residuals <- closeModel.significantVars$residuals
+head(predicted.train.df.residuals)
+```
+
+
+## Make Predictions using the test test
+
+```{r predictions}
+predicted.test <- predict(closeModel.significantVars, newdata = tesla.df.test)
+head(predicted.test, 10)
+
+predicted.test.df <- data.frame(predicted.test)
+
+# The actual values vs the predicted values
+plot(tesla.df.test$Close, col="red", type="l", lty=1.8, main = "Actual vs Predicted Values")
+lines(predicted.test.df, col="blue", type="l", lty=1.4)
+```
+
+## Model Verification
+
+### Comfirm Linearity
+
+```{r verify_linearity}
+
+plot(closeModel.significantVars, which = 1)
+
+```
+
+The residuals "bounce randomly" around the 0 line suggesting that the assumption that the relationship is linear.
+
+
+
+### Confirm Normality
+```{r verify_normality}
+
+plot(closeModel.significantVars, which = 2)
+
+```
+
+The straight line indicates normal distribution. 
+
+
+### Check Homoscedasticity
+```{r verify_homoscedasticity}
+
+plot(closeModel.significantVars, which = 3)
+
+```
+
+Besides the 3 values (155, 89, and 28) the residuals are spread out about the red line indicating homoscedasticity. We need to further verification to make sure that there is homoscedasticity.
+
+
+### Verify Outliers
+
+```{r verify_outliers}
+
+plot(closeModel.significantVars, which = 5)
+```
+
+There are 3 outliers (155, 32, 28) but they do not cross the Cook's distance line indicating they do not significantly inmpact the model.
+
+### Verify Independence
+
+```{r verify_independence}
+
+#Verify residuals are independent
+
+library(car)
+
+#test using the durbinwatson test
+durbinWatsonTest(closeModel.significantVars)
+
+```
+
+AutoCorrelation is a mathematical representation of the degree similar between a given time series and a lagged version of itself over time. From the given p-value it appears that there is an autocoorelation. So we must reject the null hypothesis meaning the residuals are autocoorelated.
+This needs to be improved one way to improve it is to go back over the linear model and attempt to improve the fit.
+
+
+### Check Homoscedasticity
+
+```{r verify_homoscedasticity1}
+ncvTest(closeModel.significantVars)
+```
+
+The NCV test returns a value of 0.0014254 which is sightly greater than 0.001, so we can reject the null hypothesis and there is reason to believe that homoscedasticity is active in the model.
+
+### Verify Colinearity
+```{r verify_colinearity}
+
+vif(closeModel.significantVars)
+
+sqrt(vif(closeModel.significantVars)) > 5
+
+```
+### Final Close Cost prediction results
+
+Since all tests return true we can we can confirm that there is co linearity. This means that the variables are highly correlated to each other.
+
+
+```{r final_predictions}
+
+predicted.test <- predict(closeModel.significantVars, newdata = tesla.df.test)
+predicted.test.df <- data.frame(predicted.test)
+head(predicted.test.df[order(predicted.test.df$predicted.test),], 20)
+
+```
+
+### Our Equation
+$$ y = 1.03 - 0.68 x_1+ 0.81 x_2 + 0.86 x_3 $$
+
+## Christian Worldview:
+From a Christian Worldview some other factors that would go to an investment decision process is not only looking at the finances of the company but also the ethics of the company. 
+We should look at this more from a qualitative assessment separate from our statistical model because we want would want to know if this company is trustworthy in investing.
+
+
+## References:
+https://finance.yahoo.com/quote/TSLA/history?p=TSLA
+https://padlet.com/isac_artzi/uamseybcuinw6t8s
+https://statsandr.com/blog/multiple-linear-regression-made-simple/#another-interpretation-of-the-intercept
+
+
+
+
+
+
+
+
