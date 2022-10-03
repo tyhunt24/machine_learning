@@ -1,0 +1,129 @@
+---
+title: "Spam Filter"
+author: "Jeffrey Hunt, Anmoldeep"
+date: "2022-09-24"
+output:
+  pdf_document: default
+  html_document: default
+Loom video Link: https://www.loom.com/share/cee7628258f64469a54e5aacd64d01cc
+---
+## Problem Statement
+The problem statement for this assignment is to build a spam email detector to reduce the error traffic and improve security of a computer network.
+
+## Naive Bayes Algorithm
+$$P(A|B) = {P(B|A)P(A)\over P(B)}$$
+
+## Load the required Packages
+```{r}
+library(tidyverse)
+library(e1071)
+library(tibble)
+library(caret)
+library(caTools)
+```
+
+
+## Data setup and Expoloration
+The spam data set has three columns: An Index Column, a body column (Body of email) and a Label(0 = ham and 1 = spam).
+```{r}
+spam <- read_csv("completeSpamAssassin.csv")
+
+glimpse(spam)
+```
+
+
+## Prepare Training and Testing Sets
+```{r}
+set.seed(123)
+
+#create a sample of the email dataset that only includes the body texts of the email
+#we split the dataset into 80% training and 20% testing
+sample_set <- sample(1:dim(spam)[1], dim(spam)[1]*0.80)
+spam_train <- spam[sample_set,] #80% section
+spam_test <- spam[-sample_set,] #20% section
+
+
+```
+
+## Build the Model
+WE build are model, Our dependent variable is Label because we want to know based of the email will the Label be ham or spam. Laplace is a nice add on to the naive Bayes model that will prevent "empty" emails from being added to evaluating the email.
+```{r}
+model <- naiveBayes(Label ~ ., data = spam_train, laplace = 1)
+head(model, 1)
+
+```
+
+## Make predictions
+```{r}
+pred <- predict(model, newdata = spam_test, type="class")
+head(pred)
+```
+With the prediction model we can determine whether an email is spam or not. We can see that given the values with either a 0(ham) or 1(spam) it predicts the spam.
+
+
+## create confusion matrix
+```{r}
+t1 <- table(spam_test$Label, pred)
+t1
+```
+- When it predicted it was a 0(ham) it was perfect.
+- When it predicted it was a 1(spam) it was nearly perfect only making the wrong prediction 3 times.
+
+
+## State Model Accuracy
+```{r}
+accuracy <- sum(diag(t1)) / nrow(spam_test)
+cat("Accuracy: ", accuracy)
+error_rate <- 1-accuracy
+cat("\nError Rate: ", error_rate)
+```
+The accuracy of our model is high at 99.8%. As we can see from the confusion matrix it is nearly perfect with it only making a wrong prediction in the Test set 3 times. 
+
+
+
+## This is for verification of Model
+```{r}
+set.seed(123)
+
+spam2 <- read_csv("lingSpam.csv")
+glimpse(spam2)
+```
+A common way of verifying a model is to test it on another set of data. The lingSpam Data set uses the same column format as the last one so all we need to do is predict the model.
+
+
+## this is for prediction of the lingSpam dataset
+```{r}
+pred2 <- predict(model, newdata = spam2)
+head(pred2)
+```
+
+## For Printing the Confusion Matrix
+```{r seeVerificationResults}
+t2 <- table(spam2$Label, pred2)
+t2
+```
+
+
+## Stating the model accuracy
+```{r}
+accuracy <- sum(diag(t2)) / nrow(spam_test)
+cat("Accuracy: ", accuracy)
+
+error_rate <- 1-accuracy
+cat("\nError Rate: ", error_rate)
+```
+
+## Conclusion
+The accuracy of the 2nd model is 95.3%. The confusion matrix shows perfection on predicting ham words but it does not do a good job in predicting if it is a spam getting only 433/1464 correct. In conclusion we can probably say that the first data set skews the results. For example a word may appear 80% in all non-spam emails in the first data set but in the second data set that same word only appears 15% of the time. A way that we can combat this is to use an even larger database Although it does a poor job in predicting spam emails we can can conclude that this is a conclusive model with a 99.8% accuracy and a 95.3% accuracy. 
+
+
+## References
+https://padlet.com/isac_artzi/k6zxeuwz2aon5vv
+https://www.kaggle.com/datasets/nitishabharathi/email-spam-dataset
+
+
+
+
+
+
+
