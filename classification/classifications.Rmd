@@ -1,0 +1,25 @@
+---
+title: "KNNSVM_classifications"
+author: "Jeffrey Hunt"
+date: "2022-10-06"
+output: html_document
+---
+### install packages
+```{r}
+library(e1071)
+library(caTools)
+library(class)
+```
+
+
+
+## Load Data
+```{r}
+data <- read.table("adult.txt")
+data.df <- data.frame(data)
+head(data.df)
+
+colnames(data.df) -> c("age", "workclass")
+
+```
+

@@ -6,6 +6,7 @@ output:
   pdf_document: default
   html_document: default
 Loom video Link: https://www.loom.com/share/cee7628258f64469a54e5aacd64d01cc
+github link: https://github.com/tyhunt24/machine_learning/tree/main/emailSpamFilter
 ---
 ## Problem Statement
 The problem statement for this assignment is to build a spam email detector to reduce the error traffic and improve security of a computer network.
