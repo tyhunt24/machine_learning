@@ -9,6 +9,8 @@ output: html_document
 library(e1071)
 library(caTools)
 library(class)
+library(caret)
+library(dplyr)
 ```
 
 
@@ -17,9 +19,74 @@ library(class)
 ```{r}
 data <- read.table("adult.txt")
 data.df <- data.frame(data)
+
+colnames(data.df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marriage', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'country', "fifty")
+
 head(data.df)
 
-colnames(data.df) -> c("age", "workclass")
+```
+
+## Data Preprocessing
+```{r}
+data.df$workclass <- as.numeric(factor(data.df$workclass))
+data.df$education <- as.numeric(factor(data.df$education))
+data.df$marriage <- as.numeric(factor(data.df$marriage))
+data.df$occupation <- as.numeric(factor(data.df$occupation))
+data.df$relationship <- as.numeric(factor(data.df$relationship))
+data.df$race <- as.numeric(factor(data.df$race))
+data.df$sex <- as.numeric(factor(data.df$sex))
+data.df$country <- as.numeric(factor(data.df$country))
+data.df$fifty <- as.numeric(factor(data.df$fifty))
+
+head(data.df)
 
 ```
+
+## Data Normalization
+```{r}
+#This does not work at the moment I need to cast into integers from characters for some data
+normalize <- function(x) {
+  return ((x - min(x)) / max(x) - min(x)) 
+}
+```
+
+## Data Splicing
+```{r}
+
+
+```
+
+## Build Model
+```{r}
+# use KNN Algorithm
+```
+## Make Predictions
+```{r}
+
+```
+
+## Classification Results
+```{r}
+
+```
+
+## Confusion Matrix
+```{r}
+
+```
+
+## Compute Accuracy Sensitivity and Specificty
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
 
