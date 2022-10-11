@@ -1,9 +1,22 @@
 ---
 title: "KNNSVM_classifications"
-author: "Jeffrey Hunt"
+author: "Jeffrey Hunt, Anmoldeep Sandhu"
 date: "2022-10-06"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+Link to loom video: https://loom.com/share/1c31401a52094147ad34351cc84b756b
 ---
+# Part 1
+Classification in machine learning is a process of categorizing a given set of data into classes. For example trying to determine if an email is spam or not, or determining if a person makes more or less than 50,000 a year. Prediction is when we make predictions on an unknown piece of data. For example what kind of sickness does a person have based on certain health factors. The strengths of classifications is that they are great to get quick results. So for the KNN a great strength is that it is simple to understand, fast, and efficient. The weaknesses on classification however is that it has a difficult time with very small data sets and is not able to predict the correct values. A weakness for the KNN algorithm is the same if we choose to small amount a number for K it won't predict right, if we choose to big a number it will classify everything the same. Prediction in classifications are a great way to predict data. A drawback however is that we need lots of good data to make the correct predictions and this is can be hard to come by.  
+
+
+# KNN Classifier
+
+## Problem Statement
+Study the Adult Census Data and build a machine learning model to predict whether a person makes above or below $50,000 based on the input data received.
+
+
 ### install packages
 ```{r}
 library(e1071)
@@ -11,13 +24,15 @@ library(caTools)
 library(class)
 library(caret)
 library(dplyr)
+library(caTools)
+library(kernlab)
+library(ggplot2)
 ```
 
 
-
-## Load Data
+### Load Data
 ```{r}
-data <- read.table("adult.txt")
+data <- read.csv("adultc.csv")
 data.df <- data.frame(data)
 
 colnames(data.df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marriage', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'country', "fifty")
@@ -26,8 +41,9 @@ head(data.df)
 
 ```
 
-## Data Preprocessing
+### Data Preprocessing
 ```{r}
+# Change all of word values into integers so we are able to perform KNN on them
 data.df$workclass <- as.numeric(factor(data.df$workclass))
 data.df$education <- as.numeric(factor(data.df$education))
 data.df$marriage <- as.numeric(factor(data.df$marriage))
@@ -38,47 +54,161 @@ data.df$sex <- as.numeric(factor(data.df$sex))
 data.df$country <- as.numeric(factor(data.df$country))
 data.df$fifty <- as.numeric(factor(data.df$fifty))
 
-head(data.df)
+#subset the data
+# We removed capital gain and capital loss because there is a lot of 0's that may skew the data
+data.df.subset <- data.df[c("age", "workclass", "education", "education-num", "marriage", "occupation", "relationship", "race", "sex", "hours-per-week", "country", "fifty")]
+
+tail(data.df.subset)
 
 ```
 
-## Data Normalization
+### Data Normalization
 ```{r}
-#This does not work at the moment I need to cast into integers from characters for some data
-normalize <- function(x) {
-  return ((x - min(x)) / max(x) - min(x)) 
+nor <- function(x) {
+  (x-min(x))/ (max(x)-min(x))
 }
+
+fifty_norm <- as.data.frame(lapply(data.df.subset[1:11], nor))
+
+head(fifty_norm)
+
 ```
 
-## Data Splicing
+### Split into training and testing sets
 ```{r}
+set.seed(123)
 
+dat.d <- sample(1:nrow(fifty_norm), size = nrow(fifty_norm)*0.7, replace = FALSE)
+
+train.fifty <- data.df.subset[dat.d,]
+test.fifty <- data.df.subset[-dat.d,]
+
+
+#Build a separate data frame for the 'fifty' column which is our target
+train.fifty_labels <- data.df.subset[dat.d,12]
+test.fifty_labels <-  data.df.subset[-dat.d,12]
 
 ```
 
-## Build Model
+
+### Build Model
 ```{r}
 # use KNN Algorithm
+NROW(train.fifty_labels)
+
+kVal <- sqrt(22792) # A common practice for K value is the sqrt of the total values
+
+model <- knn(train=train.fifty, test=test.fifty, cl=train.fifty_labels, k=kVal, use.all = FALSE)
+
 ```
-## Make Predictions
+
+
+### Compute Accuracy, Sensivity, and Specificity
 ```{r}
-
+confusionMatrix(table(model,test.fifty_labels))
 ```
 
-## Classification Results
+
+### Compute the Accuracy for multiple K values
 ```{r}
+k <- c(25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275)
+
+k.optm <- 1
+
+for (i in k) {
+  model <- knn(train=train.fifty, test=test.fifty, cl=train.fifty_labels, k=i, use.all = FALSE)
+  k.optm[i] <- 100 * sum(test.fifty_labels == model)/NROW(test.fifty_labels)
+  
+}
 
 ```
 
-## Confusion Matrix
+
+### Plot the accuracy
 ```{r}
-
+#Accuracy plot
+plot(k.optm, xlab="K- Value",ylab="Accuracy level")
 ```
 
-## Compute Accuracy Sensitivity and Specificty
+
+# SVM Classifier
+
+
+### Split the Dataset into testing and training
 ```{r}
+set.seed(123)
+split <- sample.split(data.df.subset$fifty, SplitRatio = 0.80)
 
+training_set <- subset(data.df.subset, split ==TRUE)
+test_set <- subset(data.df.subset, split == FALSE)
+
+
+# Feature Scaling
+training_set[-12] = scale(training_set[-12])
+test_set[-12] = scale(test_set[-12])
+
+head(test_set[-12])
 ```
+
+
+### Buld the Model
+```{r}
+classifier <- svm(formula = fifty~.,
+                 data = training_set,
+                 type = 'C-classification',
+                 kernel = 'linear')
+
+#names(classifier)
+```
+
+
+### Predict the Test Set
+```{r}
+y_pred <- predict(classifier, newdata = test_set[-12])
+```
+
+
+### Make Confusion Matrix (Compute accuracy, sensitivity, and specificity)
+```{r}
+confusionMatrix(table(test_set[, 12], y_pred))
+```
+
+### Visualize the SVM model
+```{r}
+#build scatter plot of training dataset
+scatter_plot <- ggplot(data = test_set, aes(x = factor(education), y = factor(workclass), color = factor(fifty))) + 
+    geom_point() + 
+    scale_color_manual(values = c("red", "black"))
+
+#add plot layer marking out the support vectors 
+scatter_plot
+```
+
+## Use of the ROC curve and Meaning of Area under ROC curve
+The Receiver Operating Characteristic (ROC) curve is a visual representation of how well your classification model works. The ROC curve is calculated by plotting the rate of true Positives vs the rate of False Positives. True Positives are all the values that were predicted right, False Positives are all the values that were wrong. When we plot the ROC curve we need to calcuate the True Positive rate and False Positive Rate for every threshold. For each one is we plot the FPR in the x-axis and the TPR in the Y-axis. 
+
+The area covered below the line is the "Area Under the Curve (AUC)". This is used to evaluate the performance of a classification model. The higher that the AUC is the better model is at distinguishing between classes. Therefore in the ideal world we want to see our line cover most of the upper left of the graph.
+
+## Comparison 
+With comparing the KNN model with the SVM, we found that for the KNN model we got the Balanced accuracy of 68% and for KNN model we got the accuracy of 81% and for the SVM model we got the accuracy of 80%.So, we came to conclusion that both the KNN classifier and SVM classifier is same accurate classifier because both have same accuracy percentage, there is not much differen in between them.The main difference in KNN and SVM classification testing data points is that the SVM utilizes a mathematical function to create the hyperplanes and segregate categorized data points, KNN considers the proximity of its closest k neighbors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
