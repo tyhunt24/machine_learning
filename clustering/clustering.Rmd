@@ -1,0 +1,218 @@
+---
+title: "Clustering"
+author: "Jeffrey Hunt, Anmoldeep Sadeep"
+date: "10-16-2022"
+output:
+  html_document:
+    df_print: paged
+loom Video: https://www.loom.com/share/140a634de141421e9cfd20ceb5932e10 
+---
+
+## Problem Statement
+The problem statement is to choose the data sets and then we need to apply the data mining algorithms for clustering and then we need to provide the analysis of our data. Our main task is to do this with two different algorithms, so we are going to use the k-means clustering algorithm, and association rules mining algorithm. With the help of these algorithms we are going to do the analysis of the data.
+
+## Part 1 Explain Data Mining Techniques: Clustering, Association, Coorelation Analysis
+Clustering: The process of clustering involves grouping the population or data points into a number of groups so that the data points within each group are more similar to one another than the data points within other groups. For example: the goal is to sort into clusters any groups of people who share similar characteristics.
+
+Association: Data mining technique called association determines the likelihood of elements in a collection occurring together. Association Rules are used to express the links between co-occurring things. An example of illustration of association rule mining involves the connection between diapers and beers. The scenario, which appears to be made up, suggests that males are more inclined to purchase beer when they visit a store to buy diapers. Data that would support that might appear something like this: 200,000 customers trade in a supermarket.
+
+Correlation Analysis: It is a statistical method used to measure the strength of the linear relationship between two variables and compute their association, basically it measures the closeness of relationships. For example: the degree to which the variables are associated with each other.
+
+# K-means
+
+### Install Libraries 
+```{r libraries}
+library(tidyverse)
+library(cluster)
+library(stats)
+library(factoextra)
+library(ggplot2)
+library(clue)
+
+# R Libraries
+library(arules)
+library(arulesViz)
+```
+
+### Data Exploration
+```{r exploration}
+data <- read.csv("online_shopper_intention.csv")
+data.df <- data.frame(data)
+
+head(data.df)
+```
+
+### Data Preprocessing
+- Keep only the data that has numeric types.
+```{r preprocessing}
+# Keep only data with integer or double value types
+#Get rid of all the columns that have lots of 0's
+#  It may Skew the data
+
+data.df <- data.df[, -c(1, 2, 3, 4, 9, 10, 11, 16, 17, 18)]
+
+head(data.df)
+
+```
+
+### Data Normalizing
+- We scale the data so that we what set of data will not control how most of the algorithm sways.
+```{r normalization}
+# Scale all of the Data
+# ? Ask Professor if this the right practice to do or not
+data.df <- scale(data.df)
+
+head(data.df)
+
+```
+
+### Elbow Method (Determine best number for K)
+The greatest bend in the elbow graph determines what the optimal numbers of K that we should use.
+From looking at the graph it looks like the best choice is around 3 or 4. We will use 4
+
+```{r elbow_method}
+elbow <- data.df[1:2000, ] #get just the the 2000 so it does not take forever to get the elbow Graph
+
+fviz_nbclust(elbow, kmeans, method = "wss")
+```
+
+### Build the Clustering Model
+- We use 4 because that is what the elbow method told us to use for clusters.
+- We start at 25 because it is common practice to do for a bigger data set.
+```{r KMeans}
+model <- kmeans(data.df, 4, nstart = 25)
+str(model)
+```
+### Display Clustering Results
+```{r kmeans_results}
+# Quantitative Results
+head(model)
+head(data.df)
+
+#Visual Results
+fviz_cluster(model, data = data.df, geom = c("point"), ellipse.type = "euclid")
+```
+
+
+### Make predictions and view the mean
+```{r predictions}
+aggregate(data.df, by=list(cluster=model$cluster), mean)
+
+# Make a prediction on a random set
+prediction <- data.frame(ProductRelated=-0.5, ProductRelated_Duration=-0.3, BounceRates=0.5, ExitRates=1.5, OperatingSystems=1.5, Browser=0.3, Region=0.5, trafficType=-0.3)
+
+head(prediction)
+
+print("Prediction for the test set: ")
+cl_predict(model, prediction) #able to predict that the cluster we used will go in the first cluster
+
+
+```
+
+### Aggregate
+We used the aggregate on this program as data.df and we used it because so it can take all the data and can find the mean values and also it will split up for points in each cluster.
+
+### Prediction
+After applying the k means cluster algorithm we came to prediction that we need to resemble the cluster 1, and by selecting the each point together with the cluster centers and the predicting function of the ClusterR, we can determine which point is closest to each center and so predict the cluster to which it belongs. Whenever the results are displayed, the predict function correctly predicts the required cluster of the both points. 
+
+### Interpret the Results
+The k-means algorithm is taken from the distance formula. From the distance formula it is able to group items items into different clusters giving a certain number of centroids. We find the centroids which are the k value by applying a method known as the Elbow Method. From our data the elbow method is able to tell us what is the best number of K's to use is, for our example it is 4. Then we are able to run the k-means and make predictions on the dataset. From our graph that we built we are able to see that the clusters are all right next one another with just a few outliers.
+
+
+
+# Association Rule Mining
+
+### Data Exploration
+- We have to load the data into a transaction class so we are able to analyze the data.
+```{r asm_data}
+asm <- read.transactions("groceries.csv", sep = ",", rm.duplicates = TRUE)
+summary(asm)
+dim(asm)
+```
+
+### Data Preprocessing
+- Need to check for missing values.
+```{r asm_preprocessing}
+sum(is.na(asm)) # No NA vectors we can start building the rules
+```
+
+### View the Most recent Items in the Plot
+- Displays the most frequent items that we see in the dataset.
+- We also want to see the support of the most frequent items in the dataset.
+```{r frequency}
+frequentItems <- eclat(asm, parameter = list(supp = 0.07, maxlen = 15)) # calculates support for frequent Items
+
+itemFrequencyPlot(asm, topN = 10) # View the top 20 most frequent items
+```
+
+### Build The Model 
+- Support: How frequently the item set appears in the data set.
+- Confidence: Indication of how often the rule has been found to be true. 
+- Lift: How likely Item Y is to be purchased if item X is purchased.
+
+```{r rules}
+rules <- apriori(asm, parameter = list(supp = 0.005, conf = 0.5))
+
+summary(rules)
+```
+
+The A-priori Algorithm: The main idea behind this algorithm is that it reduces the number of itemsets we need to examine. By eliminating items by first looking at smaller sets and recognizing that a large set cannot be frequent unless all its subsets are. Simply put if an itemset is infrequent then all of its subsets must also be infrequent.
+  - The algorithm uses the idea of the bread-first search strategy.
+
+### Analyze a Specific Rule
+- We want to analyze what items are being bought before yogurt is being bought
+- if (Items bought) then yogurt will be bought. so we are looking at the items bought before yogurt.
+```{r Analyze}
+yogurt_rules <- apriori(asm, 
+                          parameter = list(supp=0.003, conf=0.5, 
+                                         maxlen=10, 
+                                         minlen=2),
+                          appearance = list(default="lhs", rhs="yogurt"))
+
+inspect(yogurt_rules)
+
+```
+
+
+### Display Quantitative and Visual Results
+- We are able to display the results with the highest confidence in decreasing order.
+- As well as showing the highest rules in decreasing order.
+```{r results}
+rules_conf <- sort(rules, by="confidence", decreasing = TRUE, limit=10) ## Shows rules with the highest confidence
+head(inspect(rules_conf))
+
+rules_lift <- sort(rules, by="lift", decreasing = TRUE, limit = 10) ## Shows rules with the highest Lift
+head(inspect(rules_lift))
+
+plot(rules, limit = 75) # displays a scatter plot of the first 75 rules with their confidence and suport
+
+```
+
+### Display Graph plot
+- For Rules, The LHS items are connected with arrows pointing to the vertex representing the rule and RHS has an arrow pointing to the item.
+```{r graph_plot}
+subrules <- head(rules, n = 10, by = "confidence") 
+
+plot(subrules, method = "graph", engine = "htmlwidget") # displays associations between selected items
+```
+
+### Display Parallel coordinate Plot
+- Represents the rules as a parallel coordinate plot. (Shoes rules from LHS to RHS)
+```{r parallel_plot}
+plot(subrules, method = "paracoord", limit = 10) #Shows most common rules from left to right.
+```
+
+### Interpret Results
+After doing these test with association model we came to conclusion that the multiple one-item high-confidence connections with high lift metrics can be predicted by the association rules mining algorithm. Also, This association model created the couple of different multi-item high-lift associations which displays couple of different thing. Lastly, the associate rule mining model is very good for this dataset, and we got the results which we are expecting.
+
+## References
+https://www.statology.org/k-means-clustering-in-r/
+https://towardsdatascience.com/association-rule-mining-in-r-ddf2d044ae50
+http://r-statistics.co/Association-Mining-With-R.html
+https://www.techtarget.com/searchbusinessanalytics/definition/association-rules-in-data-mining
+
+
+
+
+
+
