@@ -1,0 +1,227 @@
+---
+title: "Human Resource Analytics"
+author: "Jeffrey Hunt"
+date: "2022-10-18"
+output: html_document
+---
+
+# Problem Statement
+What are the most important predictors of performance to guide a company's policy for rewarding bounces and requiring professional development?
+
+## Principal Compontent Analysis
+- PCA is a Dimensional-reduction method that is often used to reduce the dimensionality of a large data sets by transforming a large set of variables into a smaller one while it still contains most of the information in the large data set. 
+- It becomes very useful with a large set of data that have lots of correlation between variables. We are able to reduce the the variables into a smaller number of variables that will reduce the correlation.
+- These variables will than account for most of the variance.
+Simply put PCA reduces the number of variables of a data set, while preserving as much information as possible.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+```{r library}
+# Load PCA related packages
+library(stats)
+library(modeldata)
+library(dplyr)
+library(psych)
+library(rela)
+library(MASS)
+library(parallel)
+library(creditmodel)
+library(caTools)
+
+```
+
+# Data Exploration
+```{r exploration}
+data <- read.csv("Employee.csv", header = TRUE, sep=",")
+
+head(data)
+
+```
+
+### Change strings to numeric Data
+- We need to change the data from strings to numeric so we can perform PCA.
+```{r Numeric_data}
+
+data$Attrition <- as.numeric(factor(data$Attrition))
+data$BusinessTravel <- as.numeric(factor(data$BusinessTravel))
+data$Department  <- as.numeric(factor(data$Department))
+data$EducationField <- as.numeric(factor(data$EducationField))
+data$Gender <- as.numeric(factor(data$Gender))
+data$JobRole <- as.numeric(factor(data$JobRole))
+data$MaritalStatus <- as.numeric(factor(data$MaritalStatus))
+data$Over18 <- as.numeric(factor(data$Over18))
+data$OverTime <- as.numeric(factor(data$OverTime))
+data$Attrition <- as.numeric(factor(data$Attrition))
+head(data)
+```
+
+### Normalize the Data
+- We need to Normalize the data so that all of the numerical values will be in the same range.
+- If we don't Normalize the data the algorithm will consider the higher numerical values of higher importance so we need to normalize the data.
+```{r}
+data <- as.data.frame(scale(data)) # we have to do this because it will give us atomic variables back if we do not.
+
+head(data)
+tail(data)
+
+```
+
+### Get rid of NA values
+- When Normalizing the data we Made NA columns so we need to remove those columns.
+```{r rid_NA}
+#sum(is.na(data.df)) # data values that have NA
+sum(is.null(data)) # Data values that just have nothing in them
+
+data <- subset(data, select = -c(9, 22, 27))
+
+#See if there are any more NA values
+sum(is.na(data))
+head(data)
+
+```
+
+## Linear Regression
+In order to perform PCA the Model that we have decided to use is the Linear Regression Model.
+### Training and testing Sets
+```{r Training and Testing}
+sample <- sample.split(data$JobLevel, SplitRatio = 0.80) # split the dataset into 80% training and 20% for testing
+
+train <- subset(data, sample==TRUE)
+test <- subset(data, sample == FALSE)
+
+head(train)
+```
+
+### Build The Model
+```{r}
+# The variable jobLevel can be changed to anything that we want just make to sure to change the variables you want in the Training set as well.
+
+model <- lm(JobLevel ~., data = train)
+summary(model)
+```
+
+
+### Compute Correlation Matrix and covariance matrix
+- Correlation Matrix: Table that shows us the correlation coefficients between the sets of variables.
+Covariance Matrix: Matrix that shows the covariance values of each pair of variables in multivariate data.
+```{r cor_Matrix}
+cor_matrix <- cor(data)
+cov_matrix <- cov(data)
+
+cor_matrix
+cov_matrix
+
+```
+
+## Verify Three Assumptions
+
+### Assumptions 1 and 2 Barlet Test and KMO Test
+```{r}
+matrix_data <- data.matrix(data)
+pafData <- paf(matrix_data, eigcrit=1, convcrit = .001)
+
+summary(pafData)
+
+## Look up what Barlet Test and KMO test Actually mean
+
+## Find the Statistical Significance of the Barlet Test
+
+```
+The KMO test represents the degree to which each observed variable is predicted by the other variables in the data set and with this indicates the suitability for factor analysis. The KMO is above 0.60 at 0.76061 so we can go ahead and continue with factor analysis.
+The Barlett Test is at at 12900, This does not give us a p-value for the Barlett assumption. In order to verify this we need to find the statistical significance of the test.
+
+### Find Statistical Significance of the Bartlett Test
+```{r}
+# We need to use the data set size to and cortest.barlett() function with the dataset size.
+cortest.bartlett(cor_matrix, n=1300) 
+```
+With the n size of of the data at 1300 and the p-value at at 0 we can conclude that the sphericity is verified.
+
+### Assumption 3: verify that the determinant is positive
+```{r}
+det(cor_matrix)
+
+# Explain what all of this means
+```
+The Det of the correlation matrix is positive at 0.000054414 so the third verification is satisfied.
+
+#### Verification Analysis
+In order to verify that PCA would be an effective technique we need to veryify three things. The first thing that we need to verify is that the KMO tests is above 0.60. We can see that in our dataset KMO is above 0.60 at 0.76061 so the first verification passes as true. The second is the sphericity and we use that with the barlett test. We see that we get P-value of 0 so we can conclude that it passess.. Our last verification is that the determinant of the correlation matrix must be positive if it is not positive then we cannot perform PCA. We see that it does have a positive determinant so we can perform PCA on the dataset.
+
+## PCA Analysis
+We perform PCA to reduce the dimensionality of a dataset and increase the interpretability while minimizing the information that we lose.
+
+### Calculate the Number of Components
+```{r}
+prinComponents <- prcomp(data) # we do need to use the scale because we have already scaled the data.
+summary(prinComponents)
+
+# Need to look up and write about what this is doing.
+```
+The prcomp function gives us percentage of total variation in dataset. With prcomp function we are able to see how the data is related to one another So as we can see here we are getting back 3 variables Standard Deviation, Proportion of variance, Cumalitve Proportion.
+
+### Keep EigenVectors
+```{r}
+prinComponents$sdev ^ 2 #taking the standard deviation gives us the eigenvalues.
+```
+The main idea is that if an eigenvector is greater than 1 then we are wanting to keep it because if it does not then the component accounts for less variance then a single variable.
+
+### Graph the Data
+```{r}
+screeplot(prinComponents)
+screeplot(prinComponents, type = "lines")
+biplot(prinComponents)
+
+# Need to look up and see what the different graphs mean.
+```
+The screeplot help us to assess how many Principal Components we want to keep. From looking at this screeplot and interpreting it looks like we would only need to keep 1 or 2 Components. 
+
+### finding pca variables correlated with target variable
+From the Screeplot we we only need to use 1 or 2 factors but we may have something wrong in our data, so we are going to get 6 factors.
+
+```{r}
+# to find the variables we are calculating the all 6 components
+pca6Components <- principal(cor_matrix, nfactors=6, rotate="none")
+pca6Components
+```
+### Run Linear Model Again
+- So from the scree plot we see that we only want to keep 5 Components 2 is what it gives us but 2 gives us a really good R score well so does 5.
+- So we can run the Model again.
+```{r}
+components <- cbind(data$JobLevel, prinComponents$x[, 1:5]) %>% as.data.frame()
+
+model2 <- lm(data$JobLevel ~., data = components)
+```
+### Compare R-squared Values
+```{r}
+summary(model)$adj.r.squared
+summary(model2)$adj.r.squared
+```
+We want to Compute the R-squared values to see which gives Linear Model is better. As we can see the PCA gives us back a better value.
+
+### Plot the Data
+```{r}
+# below we are ploting the data plots for the better analysis. 
+alpha(cor_matrix, check.keys = TRUE)
+fa.parallel(data,n.obs=400)
+fa.diagram(pca6Components)
+```
+So we can see from the above plots as well that the best choice for number of Components is somewhere around 1 or 2.
+
+### Conclusion
+In conclusion, we got the success in reducing the dimensionality from 32 to 6, and the biggest benefit of doing this is that it saves the lot of computation power and time on further analysis We can see in the above code as well that after doing the screeplot and eigenvalues to see the best number of components the r-squared value goes from 0.91258 to a perfect 1. So from this data we can conclude that PCA is able to give us the right components to keep. 
+
+### References:
+https://builtin.com/data-science/step-step-explanation-principal-component-analysis
+https://cran.r-project.org/src/contrib/Archive/rela/
+https://www.benjaminbell.co.uk/2018/02/principal-components-analysis-pca-in-r.html
+https://towardsdatascience.com/learn-principle-component-analysis-in-r-ddba7c9b1064
+
+
+
+
+

@@ -3,8 +3,8 @@ title: "Spam Filter"
 author: "Jeffrey Hunt, Anmoldeep"
 date: "2022-09-24"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 Loom video Link: https://www.loom.com/share/cee7628258f64469a54e5aacd64d01cc
 github link: https://github.com/tyhunt24/machine_learning/tree/main/emailSpamFilter
 ---
@@ -34,6 +34,8 @@ glimpse(spam)
 
 
 ## Prepare Training and Testing Sets
+- Prepare training dataset that includes 80% of the email
+- Prepare testing set that includes the other 20% of the email. 
 ```{r}
 set.seed(123)
 
@@ -53,13 +55,17 @@ model <- naiveBayes(Label ~ ., data = spam_train, laplace = 1)
 head(model, 1)
 
 ```
+- We see that it trained trained to see 3308 ended in 0 and 1528 ended in 1.
 
 ## Make predictions
 ```{r}
-pred <- predict(model, newdata = spam_test, type="class")
-head(pred)
+pred_raw <- predict(model, newdata = spam_test, type = "raw")
+head(pred_raw)
+
+pred_class <- predict(model, newdata = spam_test, type="class")
+head(pred_class)
 ```
-With the prediction model we can determine whether an email is spam or not. We can see that given the values with either a 0(ham) or 1(spam) it predicts the spam.
+Using the model that we made we are able to make predictions about whether an email is a ham or spam email using the naive bayes model. The first output in the prediction gives us the probability of an email being spam or not. The second output gives us an array of what the model predicted as to whether it was ham or spam. 
 
 
 ## create confusion matrix
@@ -67,8 +73,8 @@ With the prediction model we can determine whether an email is spam or not. We c
 t1 <- table(spam_test$Label, pred)
 t1
 ```
-- When it predicted it was a 0(ham) it was perfect.
-- When it predicted it was a 1(spam) it was nearly perfect only making the wrong prediction 3 times.
+- When the naive Bayes theorem predicted if it was a ham email it was perfect getting 839/839 correct.
+- The spam email was nearly perfect only missing missing 3 values getting 368/371 correct when predicting a spam email.
 
 
 ## State Model Accuracy
@@ -78,7 +84,7 @@ cat("Accuracy: ", accuracy)
 error_rate <- 1-accuracy
 cat("\nError Rate: ", error_rate)
 ```
-The accuracy of our model is high at 99.8%. As we can see from the confusion matrix it is nearly perfect with it only making a wrong prediction in the Test set 3 times. 
+The accuracy of our model is high at 99.8%. As we can see from the confusion matrix it is nearly perfect with it only making a wrong prediction in the Test set 3 times. Overall, the testing set shows that we have a very high accuracy.
 
 
 
@@ -97,15 +103,16 @@ A common way of verifying a model is to test it on another set of data. The ling
 pred2 <- predict(model, newdata = spam2)
 head(pred2)
 ```
+Since we have already built the model all we need to do is predict it on the next set of data. We get the same prediction as last time with an array of what it predicted with levels at 0 for ham and 1 for spam.
 
 ## For Printing the Confusion Matrix
 ```{r seeVerificationResults}
 t2 <- table(spam2$Label, pred2)
 t2
 ```
+The confusion matrix for this set of data shows a perfect prediction for ham predicting 708/708 correct, however it did not do a good job in predicting spam emails, predicting 433/1464 correct.
 
-
-## Model Verification
+## Model Accuracy and error rate
 ```{r}
 accuracy <- sum(diag(t2)) / nrow(spam_test)
 cat("Accuracy: ", accuracy)
@@ -115,8 +122,7 @@ cat("\nError Rate: ", error_rate)
 ```
 
 ## Final Spam Results
-The accuracy of the 2nd model is 95.3%. The confusion matrix shows perfection on predicting ham words but it does not do a good job in predicting if it is a spam getting only 433/1464 correct. In conclusion we can probably say that the first data set skews the results. For example a word may appear 80% in all non-spam emails in the first data set but in the second data set that same word only appears 15% of the time. A way that we can combat this is to use an even larger database Although it does a poor job in predicting spam emails we can can conclude that this is a conclusive model with a 99.8% accuracy and a 95.3% accuracy. 
-
+The accuracy of the 2nd model is 95.3%. The confusion matrix shows perfection on predicting ham words but it does not do a good job in predicting if it is a spam getting only 433/1897 correct at a rate of 23%. In conclusion we can probably say that the first data set skews the results. For example a word may appear 80% in all non-spam emails in the first data set but in the second data set that same word only appears 15% of the time. A way that we can combat this is to use an even larger database. Since it does a very poor job in the predictions on our second data set in predicting whether or not a email is ham or spam we can conclude that the model is insufficient.
 
 ## References
 https://padlet.com/isac_artzi/k6zxeuwz2aon5vv
