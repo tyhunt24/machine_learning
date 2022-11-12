@@ -1,0 +1,334 @@
+---
+title: "Gaussian Processes Regression"
+author: "Jeffrey Hunt, Anmoldeep Sandhu"
+data: "2022-11-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem Statement
+Use Gaussian Processes regression to model time series, then use it as a basis for detecting differential expression in time series.
+
+## Gene Expression
+Gene Expression is the process by which the instructions in our DNA are converted into a functional product, such as protein.It is a tightly regulated process that allows a cell to respond to its changing environment. It also acts as both an on/off switch to control when proteins are made and also a volume control that increases or decreases the amount of proteins made.
+
+## Control and Treatment
+Control groups are essential to experimental design. When researchers are interested in the impact of a new testament, they randomly divide their study participants into at least two groups.
+  - Control Group: The control group receives either no treatment, a standard treatment whose effect is already known, or a placebo (a fake treatment).
+  - Treatment Group: the set of participants in a research study that are exposed to some manipulation or intentional change in the independent variable of interest.
+  - Example of this: We want to know if college students are paid better based off of there performance to test this we divide the students into control and treatment groups:
+    - We pay students in treatment group for achieving high grades
+    - Students in the control group do not receive any money.
+
+### Libraries
+```{r}
+#if (!requireNamespace("BiocManager"))
+ #   install.packages("BiocManager")
+#BiocManager::install(c("limma", "edgeR", "Glimma", "org.Mm.eg.db", "gplots", "RColorBrewer", "NMF", "BiasedUrn"))
+
+
+```
+
+
+## Load Libraries
+```{r libraries}
+library(edgeR)
+library(limma)
+library(Glimma)
+library(org.Mm.eg.db)
+library(gplots)
+library(RColorBrewer)
+library(NMF)
+
+```
+
+## Load Data
+```{r load_data}
+#Read Data into R
+seqdata <- read.delim("GSE60450_Lactation-GenewiseCounts.txt", stringsAsFactors = FALSE)
+sampleinfo <- read.delim("SampleInfo.txt", stringsAsFactors = TRUE) 
+
+head(seqdata)
+head(sampleinfo)
+
+```
+
+## Format The Data
+```{r format_data}
+## Create a new data object that contains only the counts for the 12 samples
+countdata <- seqdata[,-(1:2)] #remove first two columns
+
+head(countdata)
+
+colnames(countdata)
+
+colnames(countdata) <- substr(colnames(countdata), start = 1, stop = 7)
+
+head(countdata)
+```
+
+
+## Convert counts to DGElist object
+This is an object used by edgeR to store count data. It has a number of slots for storing varous parameters about the data.
+```{r DGElist}
+yDGElist <- DGEList(countdata)
+
+names(yDGElist)
+
+group <- paste(sampleinfo$CellType, sampleinfo$Status, sep = ".")
+
+group <- factor(group)
+
+yDGElist$samples$group <- group
+
+yDGElist$samples
+
+```
+
+
+## Annontations
+We want to build up our annotation keeping Gene Symbols and the full Gene Names. 
+```{r annotations}
+columns(org.Mm.eg.db) # WE look to see what information we want to keep.
+
+```
+
+## Filtering Lowly Expressed Genes
+- Genes with low counts provide little evidence for differential expression and they interfere with some of the statistical approximations that are used. They also add to multiple testing burden with estimating false discovery rates reducing power to detect differntially expressed genes. 
+- We use the counts-per-million (CPM) function to generate CPM values and then filter out those who do not have a CPM above 0.5.
+
+```{r cpm}
+#obtain the CPMS
+myCPM <- cpm(countdata)
+
+#which values are greater than 0.5?
+thresh <- myCPM > 0.5
+
+#logical matrix with true and false values
+head(thresh)
+
+#11433 genes that have TRUES in all 12 samples
+table(rowSums(thresh))
+
+
+# Keep genes that have at least 2 TRUES in each row of thresh
+keep <- rowSums(thresh) >= 2
+summary(keep)
+
+# Need see whether our threshold of 0.5 does indeed correspond to a count of 10-15
+plot(myCPM[, 1], countdata[,1], ylim=c(0,50), xlim=c(0,3))
+
+abline(v=0.5)
+
+
+```
+
+## Quality Control
+Now that we have gotten rid of the lowly expressed genes we can look at different plots the check that the data is in good quality.
+```{r quality_control}
+
+# we can also adjust the labelling if we want
+barplot(yDGElist$samples$lib.size/1e06, names=colnames(yDGElist), las=2, ann=FALSE, cex.names=0.75)
+mtext(side = 1, text = "Samples", line = 4)
+mtext(side = 2, text = "Library size (millions)", line = 3)
+title("Barplot of library sizes")
+
+# Get log2 counts per million
+logcounts <- cpm(yDGElist,log=TRUE)
+# Check distributions of samples using boxplots
+boxplot(logcounts, xlab="", ylab="Log2 counts per million",las=2)
+# Let's add a blue horizontal line that corresponds to the median logCPM
+abline(h=median(logcounts),col="blue")
+title("Boxplots of logCPMs (unnormalised)")
+```
+
+## Differential Expression
+Differential Expression means we take the normalised read count data and perform statistical analysis to discover quantitative changes in expression levels between experimental groups.
+
+```{r differential_expression}
+## Create a design Matrix
+design <- model.matrix(~ 0 + group)
+
+## Make the column names of the design matrix a bit nicer
+colnames(design) <- levels(group)
+design
+```
+
+## Voom the Data
+Voom automatically adjusts the the library sizes and transforms the design matrix to product an Elist object. We then can plot a mean-variance trend of the data which will tell us if there is any genes that look variable in our data and if we have filtered correctly. 
+```{r voom_data}
+par(mfrow=c(1,1))
+v <- voom(yDGElist,design,plot = TRUE)
+
+v
+# What is contained in this object?
+names(v)
+
+# Compare Voom Transformation
+par(mfrow=c(1,2))
+boxplot(logcounts, xlab="", ylab="Log2 counts per million",las=2,main="Unnormalised logCPM")
+
+
+abline(h=median(logcounts),col="blue")
+boxplot(v$E, xlab="", ylab="Log2 counts per million",las=2,main="Voom transformed logCPM")
+
+abline(h=median(v$E),col="blue")
+```
+
+## Testing for differential Expression
+Now that we have tranformed our data we can use limma to test for differential expression
+We fit a linear Model for each gene using the lFit
+```{r fit_model}
+# Fit the Linear Model
+fit <- lmFit(v) # estimates means and variances for each group
+names(fit) # Checks the Names of the Items.
+
+cont.matrix <- makeContrasts(B.PregVsLac=basal.pregnant - basal.lactate,levels=design)
+cont.matrix
+
+fit.cont <- contrasts.fit(fit, cont.matrix)
+fit.cont <- eBayes(fit.cont)
+dim(fit.cont)
+
+summa.fit <- decideTests(fit.cont)
+summary(summa.fit)
+```
+
+## The Results
+```{r results}
+# We want to highlight the significant genes. We can get this from decideTests.
+par(mfrow=c(1,2))
+plotMD(fit.cont,coef=1,status=summa.fit[,"B.PregVsLac"], values = c(-1, 1), hl.col=c("blue","red"))
+
+# For the volcano plot we have to specify how many of the top genes to highlight.
+# We can also specify that we want to plot the gene symbol for the highlighted genes.
+# let's highlight the top 100 most DE genes
+volcanoplot(fit.cont,coef=1,highlight=100,names=fit.cont$genes$SYMBOL, main="B.PregVsLac")
+```
+
+# Gaussian Processes
+Gaussian Proceesses are a generic supervised learning method designed to solve regression and probablistic classification problems.
+
+Advantages of Gaussian Processes are:
+  - The prediction interpolates the observations
+  - The prediction is probabilistic so that one can compute empirical confidence intervals and decide        based on those if they should refit.
+  - Versatile: Different kernels can be specified. Common Kernels are provided, but it is also possible to specify custom kernels.
+
+Disadvantages of Gaussian Processes are:
+  - They are not sparse, they use the whole samples/features information to perform the prediction
+  - They lose efficiency in high dimensional spaces - namely when the number of features exceeds a few dozen.
+  
+# Gaussian Process Prior
+The Gaussian Process prior is a distribution on some unknown function in regression. This is because we are assigning the GP a prior without having exact knowledge. After observing some function values, the GP can be converted to a posterior over the functions. 
+
+# Below fuction is without the kernels
+```{r practice_GP}
+library(mlegp)
+n <- 12
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+gp <- mlegp(x, y)
+
+
+n <- 12
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+y <- (2*x) %%1
+gp1 <- mlegp(x, y)
+
+plot(gp)
+
+plot(gp1)
+```
+
+# Using the above testing Gaussian Process Code we implement it in our own data
+- We use the mlegp and a a sperate matrix to perform gaussian regression on the gene dataset using the dgelist object we get the counts of the gene expression.
+```{r TrainGaussianProcesses}
+library(pracma)
+library(caTools)
+
+n <- 500
+y <- yDGElist$counts[1:n,1]
+# Splitting by using 70/30 ratio
+sample <- sample.split(y, SplitRatio = 0.7)
+x_train <- matrix(seq(0,1,length.out = 350), ncol=1)
+x_test <- matrix(seq(0,1,length.out = 150), ncol=1)
+y_train <- subset(y, sample==TRUE)
+y_test <- subset(y, sample==FALSE)
+gpk <- mlegp(x_train, y_train)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk)
+}
+```
+
+
+
+#Prediction with the Gaussian Process
+- From our above dataset we predict what the count of the gene expression should be. 
+```{r predictions}
+#Creating the prediction curve for testing setting using the model
+predicting_gauss <- mlegp(x_test, y_test)
+plot(predicting_gauss)
+# Testing the data
+#predicted <- predict(gpk, y_test)
+#predicted.df <- data.frame(predicted)
+```
+
+
+```{r comparePredictions}
+# below function is to show the predictions vary each time with the new testing and training sets, and with a for loop plotting the 5 different graphs
+for (z in 1:5) {
+  # Reformat dglist to a suitable size
+  n <- 500
+  y <- yDGElist$counts[1:n,1]
+  # Splitting using the 70/30 ratio
+  sample <- sample.split(y, SplitRatio = 0.7)
+  x_train <- matrix(seq(0,1,length.out = 350), ncol=1)
+  x_test <- matrix(seq(0,1,length.out = 150), ncol=1)
+  y_train <- subset(y, sample==TRUE)
+  y_test <- subset(y, sample==FALSE)
+
+  gpk <- mlegp(x_train, y_train)
+  # Creating the prediction curve
+  #curve(gpk$pred(x));points(x_test,y_test)
+}
+```
+
+
+
+
+# Covariance Function:
+Covariance indicates the relationship of two variables whenever one variable changes. If an increase in one variable results in an increase in the other variable, both variables are said to have a positive covariance. Decreases in one variable also cause a decrease in the other.
+
+
+# Optimization
+Optimization is very helpful with the Gaussian Process. An optimization problem is one that has an objective, for example, you might want to find a global minimum. Given the predictions and the confidence interval of a Gaussian process, Bayesian optimization uses an acquisition function to choose observations that would advance that objective. The acquisition function is a combination of that objective, and a balance between exploration and exploitation.
+The key concepts you should grasp are:
+1.Bayesian optimization balances between exploring new and uninformed areas without data, and exploiting known information from pre-existing data.
+2.This continually improves a Gaussian process model, so that it makes better decisions about what to observe next.
+3.All of this is to optimize for a particular objective
+
+
+# Conclusion:
+In conclusion, We categorized the RNA-sequences by counts per million after completing quality control and data analysis on the data. After normalizing the data, we were able to do comparison on a linear fit to identify difference expressions in between classed groups. Then, after separating the data into training and testing sets, we attempted to construct a regression using a Gaussian process. We used mlegp to execute Gaussian Processes on the training data, and we then used the results to make a some predictions about the testing set. In the end, we produced a perfect fit graph by carrying out the predictions using the testing set. We had some struggles also with the Guassian Proccess primarly with GauPro library not working and there not being much documentation for the other libraries.
+
+
+### References
+https://www.scribbr.com/methodology/control-group/
+https://combine-australia.github.io/RNAseq-R/06-rnaseq-day1.html#Filtering_lowly_expressed_genes 
+https://scikit-learn.org/stable/modules/gaussian_process.html#:~:text=Gaussian%20Processes%20(GP)%20are%20a,at%20least%20for%20regular%20kernels). 
+https://peterroelants.github.io/posts/gaussian-process-tutorial/ 
+https://datascience.stackexchange.com/questions/97009/how-does-bayesian-optimization-with-gaussian-processes-work
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,114 @@
+---
+title: "Posterior_Distributions"
+author: "Jeffrey Hunt"
+date: "2022-11-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import Libraries
+```{r libraries}
+library(markovchain)
+library(diagram)
+library(DiagrammeR)
+library(nleqslv)
+```
+
+## Problem Statment
+What is the predicted likelihood of people visiting a given attraction using the Markov Chain Monte Caro (MCMC) method?
+
+## Load Data
+```{r}
+data <- read.csv("syndata.csv", header = FALSE)
+
+data <-data.frame(data)
+
+headers = c("Museum", "Concert", "Sports", "Restaurant", "Hike")
+
+data
+```
+
+
+## Create Table of Conditional Probabilites
+```{r}
+# We covert the the original table into a condtional probability Table
+  #Example Concert / Museum = 3 / 15 = 0.2000
+data_new<-t(apply(data,1, function(x) x/sum(x)))
+
+data_new <- data.frame(data_new)
+
+data_new
+```
+
+
+## Convert Probabilities Table into Transition Matrix
+```{r}
+# I am not sure if this is right but this is what we will do for now.
+transMatrix = data.matrix(data_new)
+
+#convert it into a matrix
+transMatrix = matrix(transMatrix, nrow = 5, byrow = FALSE, dimnames = list(headers, headers))
+
+transMatrix
+```
+
+
+# Markov Chain Monte Carlo
+The Markov Chain Monte Carlo is used for systematic random sampling from high-dimensional probability distributions. Markov chain Monte Carlo methods draw samples where the next sample is dependent on the existing sample, called a Markov Chain. This allows the algorithms to narrow in on the qunaity that is being approximated from th distribution, even with a large number of random samples.
+
+
+## Create a markov Chain Object
+```{r}
+# Create a Markov Chain Object
+mark_tourist <- new("markovchain", states = headers, byrow = TRUE, transitionMatrix = transMatrix, name = "Tourist Movement")
+
+mark_tourist
+```
+## Plot the Transition Matrix
+```{r}
+pp <- plotmat(transMatrix, pos = c(1,1,3), curve = 0, name = headers,
+              lwd = 1, box.lwd = 5, cex.txt = 0.6, self.cex = 0.6,
+              self.shiftx = c(0.01, 0.45, 0.01, 0.01, 0.01),self.shifty = c(0.05, -0.05, -0.05, -0.05, -0.05),
+              box.type = "circle", box.prop = 0.3, main = "Transitions")
+```
+
+## Calculate the Steady state Probabilities of the Markov chain
+A steady-state behavior of a markov chain is the long-term probability that the system will be in each state. It is the number of transitions applied to the systems that has no impact on the state vector, ie the current behavior of the system will continue into the future.
+```{r}
+
+```
+
+## How Likey is a person to attend a concert, Go on a hike, then eat at a resturant?
+```{r}
+## First we need to find the probability of concert to hike
+## then we need Hike to Resturant
+## We can get this by multiplying it in my transition matrix
+
+transMatrix[2, 5] * transMatrix[5,4] * 100
+
+#So pretty much a 5 percent chance to to go from concert to hike to resturant
+```
+
+## Find the Likelihood of visiting any of the locations as the fifth step
+```{r}
+#Find the probabil
+
+#starting prob vector
+spv <- c(0.2, 0.2, 0.2, 0.2, 0.2)
+```
+
+## Ask Our Own Question
+
+## Metropolis-Hastings Algorithm
+
+## Analysis of MCMC
+
+## Conclusion
+
+## Recources
+
+
+
