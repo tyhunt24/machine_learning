@@ -3,6 +3,7 @@ title: "Posterior_Distributions"
 author: "Jeffrey Hunt"
 date: "2022-11-08"
 output: html_document
+loom Video: https://loom.com/share/883e45cf594046249c683963017625f6 
 ---
 
 ```{r setup, include=FALSE}
@@ -15,6 +16,8 @@ library(markovchain)
 library(diagram)
 library(DiagrammeR)
 library(nleqslv)
+library(MHadaptive)
+library(expm)
 ```
 
 ## Problem Statment
@@ -78,6 +81,7 @@ pp <- plotmat(transMatrix, pos = c(1,1,3), curve = 0, name = headers,
 ## Calculate the Steady state Probabilities of the Markov chain
 A steady-state behavior of a markov chain is the long-term probability that the system will be in each state. It is the number of transitions applied to the systems that has no impact on the state vector, ie the current behavior of the system will continue into the future.
 ```{r}
+steadyStates(mark_tourist)
 
 ```
 
@@ -94,21 +98,78 @@ transMatrix[2, 5] * transMatrix[5,4] * 100
 
 ## Find the Likelihood of visiting any of the locations as the fifth step
 ```{r}
-#Find the probabil
-
 #starting prob vector
 spv <- c(0.2, 0.2, 0.2, 0.2, 0.2)
+
+#Take the transmatrix to the 5th power
+transProb = transMatrix %^% 5
+
+#Sum Columns for the 5th step
+sumTrans = colSums(transProb)
+
+#now take Spv column * SumTrans Column
+spvTrans = spv * sumTrans
+
+#Probability of visting any of these locations as the 5th step shown below.
+spvTrans * 100
+
 ```
 
-## Ask Our Own Question
-
 ## Metropolis-Hastings Algorithm
+The Metropolis Hasting algorithm is a simple algorithm for producing samples from distributions that may otherwise be difficult to sample from. We can use our transition matrix to perform the Metropolis-Hastings Monte Carlo algorithm. We implement the algorithm in these steps:
+
+  1. Use a random sample from the transition matrix
+  2. Choose a starting value for theta(write this in markdown)
+  3. Draw theta from candidate generating density
+  4. Calculate the acceptance probability
+  5. Decide whether to accept or reject the probability at the certain step.
+  6. Repeat steps 3-5 for R (make sure to put the math in here)
+  7. Average the draws to produce the estimates for posterior functions of interest (mean, variance, etc)
+  
+### Question to answer
+- There are 5 locations, a tourist starts at a certain population on day 1, How can we use a coin and a spinner to simulate the tourists movements over a certain number of days?
+```{r}
+n_states = 5
+theta = 1:n_states
+pi_theta = theta
+
+n_steps = 10000
+theta_sim = rep(NA, n_steps)
+theta_sim[1] = 3
+
+for (i in 2:n_steps){
+  current = theta_sim[i - 1]
+  proposed = sample(c(current + 1, current - 1), size = 1, prob = c(0.5, 0.5))
+  if (!(proposed %in% theta)){
+proposed = current
+  }
+  a = min(1, pi_theta[proposed] / pi_theta[current])
+  theta_sim[i] = sample(c(proposed, current), size = 1, prob = c(a, 1-a))
+}
+
+# trace plot
+plot(1:n_steps, theta_sim, type = "l", ylim = range(theta), xlab = "Day", ylab = "Location")
+
+plot(table(theta_sim) / n_steps, xlab = "Location", ylab = "Proportion of days")
+
+points(theta, pi_theta / sum(pi_theta), type = "o", col = "seagreen")
+
+```
+
+
 
 ## Analysis of MCMC
+Markov chain Monte Carlo methods comprise a class of algorithms for sampling from a probability distribution. For the MCMC of answering our own question we took kind of a different route. Since the MHAdaptive algorithm is not supported anymore we used a algorithm off of the bookdown website. We saw that we have 5 different locations and if we give each location a random population then the tourist is more likely to spend time at that location. Then by simulating a coin and a spinner we are able to see where the tourist is most likely to spend each day at a certain location for over 1000 days. We use this because the more of a population there is the more likely a tourist is going to want to spend there time at a certain location. The metropolis algorithm is very confusing for me still so we were not able to get something simulated in this project but hopefully through further study we can come back and solve the problem at hand. 
+
 
 ## Conclusion
+In order to model and analyse data, Monte Carlo Markov Chains are an effective technique.In this assignment, we tried implementing the Metro Hastings MCMC as well as other MCMCs in different methods. We had a few problems with this assignment, such as the need for some outdated libraries that weren't present in the more recent version of R. The creation of the Metro Hastings MCM in our code was hampered by a number of factors, including the fact that doing this in R rather than Python is a little more difficult.In the end, MCMCs were found to be helpful in a variety of circumstances and can influence how data are interpreted. 
 
-## Recources
+## References
+https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo
+https://towardsdatascience.com/monte-carlo-markov-chain-89cb7e844c75
+https://bookdown.org/kevin_davisross/bayesian-reasoning-and-methods/mcmc.html
+
 
 
 
